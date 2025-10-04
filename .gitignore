@@ -1,0 +1,17 @@
+# Ignore environment files and secrets
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pkl
+*.db
+*.sqlite3
+
+# Ignore cache and virtual environments
+.cache/
+.venv/
+venv/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealTalk - Your Recovery Companion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin: 2rem auto;
+            max-width: 1200px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+            color: white;
+            padding: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .brain-state {
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+
+        .state-focused {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .state-triggered {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .state-relaxed {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        #eegChart {
+            background: #1f2937;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .emergency-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 1.5rem;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .emergency-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+        }
+
+        .breathing-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            margin: 2rem auto;
+            animation: breathe 10s infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.5); }
+            50% { transform: scale(1.5); }
+            75% { transform: scale(0.8); }
+        }
+
+        .chat-container {
+            height: 500px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 1rem;
+            background: #f9fafb;
+        }
+
+        .message {
+            border-radius: 15px;
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+            max-width: 70%;
+        }
+
+        .message-user {
+            background: var(--primary);
+            color: white;
+            margin-left: auto;
+        }
+
+        .message-coach {
+            background: #e5e7eb;
+            color: #1f2937;
+        }
+
+        .nav-pills .nav-link {
+            color: #6b7280;
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+        }
+
+        .nav-pills .nav-link.active {
+            background: var(--primary);
+        }
+
+        .streak-badge {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+
+.ai-controls { background: #f3f4f6; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }
+.message-ai { max-width: 70%; margin-left: 0; border-radius: 1rem; border-top-left-radius: 0.25rem; padding: 0.75rem 1rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); animation: slideIn 0.3s; display: flex; gap: 0.75rem; }
+.persona-sarah { background: white; border-left: 4px solid #3b82f6; }
+.persona-james { background: white; border-left: 4px solid #10b981; }
+.persona-maria { background: white; border-left: 4px solid #8b5cf6; }
+.message-ai .avatar { width: 2.5rem; height: 2.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; }
+.persona-sarah .avatar { background: #3b82f6; }
+.persona-james .avatar { background: #10b981; }
+.persona-maria .avatar { background: #8b5cf6; }
+.message-ai .content { flex: 1; }
+.persona-header { font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem; color: #1f2937; }
+.message-ai .text { color: #1f2937; line-height: 1.5; }
+.timestamp { font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem; }
+.typing-indicator { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: white; border-radius: 1rem; border-top-left-radius: 0.25rem; margin: 0.5rem 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); max-width: 70%; }
+.typing-indicator .avatar { width: 2.5rem; height: 2.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+.typing-dots { display: flex; gap: 0.25rem; }
+.typing-dots span { width: 0.5rem; height: 0.5rem; background: #9ca3af; border-radius: 50%; animation: bounce 1.4s infinite; }
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-0.625rem); } }
+.participant-list { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.participant-badge { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 20px; background: white; border: 2px solid #e5e7eb; font-size: 0.9rem; }
+.participant-badge.active { border-color: var(--primary); background: #eff6ff; }
+.control-group { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+/* Left sidebar for participants */
+.participants-sidebar {
+    width: 200px;
+    background: #f9fafb;
+    padding: 1.5rem 1rem;
+    border-right: 1px solid #e5e7eb;
+}
+
+.participants-sidebar h6 {
+    color: #6b7280;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+}
+
+.participant-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.participant-item:hover {
+    background: #f3f4f6;
+}
+
+.participant-item.active {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+}
+
+.participant-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.participant-info {
+    flex: 1;
+}
+
+.participant-name {
+    color: #1f2937;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.125rem;
+}
+
+.participant-role {
+    color: #6b7280;
+    font-size: 0.75rem;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+}
+
+/* Main chat area */
+.chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: white;
+}
+
+/* Topic header */
+.topic-header {
+    padding: 1rem 1.5rem;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.topic-label {
+    color: #6b7280;
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.topic-title {
+    color: #1f2937;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Chat container light theme */
+#multiagentContainer {
+    background: white;
+    border: none;
+    padding: 1.5rem;
+}
+
+/* Message bubbles - light theme */
+.message-ai {
+    background: white;
+    border-left: none;
+    border-radius: 12px;
+    border-top-left-radius: 4px;
+    border: 1px solid #e5e7eb;
+}
+
+.persona-sarah { border-left: 3px solid #3b82f6; }
+.persona-james { border-left: 3px solid #10b981; }
+.persona-maria { border-left: 3px solid #8b5cf6; }
+
+.message-ai .persona-header {
+    color: #1f2937;
+}
+
+.message-ai .text {
+    color: #374151;
+}
+
+.message-ai .timestamp {
+    color: #9ca3af;
+}
+
+/* Input area light theme */
+.chat-input-wrapper {
+    padding: 1rem 1.5rem;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+}
+
+#multiagentInput {
+    background: white;
+    border: 1px solid #d1d5db;
+    color: #1f2937;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+}
+
+#multiagentInput::placeholder {
+    color: #9ca3af;
+}
+
+#multiagentInput:focus {
+    background: white;
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+/* Export Modal Styles */
+.export-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.export-modal.active {
+    display: flex;
+}
+
+.export-modal-content {
+    background: #2d2d3d;
+    border-radius: 20px;
+    padding: 2.5rem;
+    max-width: 600px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.export-modal-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.export-modal-header h3 {
+    color: white;
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.export-modal-header p {
+    color: #9ca3af;
+    font-size: 0.95rem;
+}
+
+.export-format-option {
+    background: #3d3d50;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.export-format-option:hover {
+    border-color: #4f46e5;
+    background: #4a4a5e;
+}
+
+.export-format-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+
+.icon-txt {
+    background: #10b981;
+    color: white;
+}
+
+.icon-json {
+    background: #f59e0b;
+    color: white;
+}
+
+.icon-pdf {
+    background: #ef4444;
+    color: white;
+}
+
+.export-format-info {
+    flex: 1;
+}
+
+.export-format-info h5 {
+    color: white;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.export-format-info p {
+    color: #9ca3af;
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.export-arrow {
+    color: #6b7280;
+    font-size: 1.25rem;
+}
+
+.export-options-section {
+    border-top: 1px solid #4a4a5e;
+    padding-top: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.export-options-section h6 {
+    color: #9ca3af;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+}
+
+.export-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.export-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #4f46e5;
+    cursor: pointer;
+}
+
+.export-checkbox label {
+    color: #e5e7eb;
+    font-size: 0.95rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.export-modal-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.export-modal-actions button {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.export-now-btn {
+    background: #0891b2;
+    color: white;
+}
+
+.export-now-btn:hover {
+    background: #0e7490;
+    transform: translateY(-2px);
+}
+
+.export-cancel-btn {
+    background: #4a4a5e;
+    color: #e5e7eb;
+}
+
+.export-cancel-btn:hover {
+    background: #5a5a6e;
+}
+
+/* Topic Selection Cards */
+.topic-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.topic-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+    border-color: var(--primary);
+}
+
+.topic-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.topic-card h5 {
+    color: #1f2937;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.topic-description {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.topic-meta {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.multiagent-wrapper {
+    display: flex;
+    height: 600px;
+    border: 1px solid #e5e7eb;
+    border-radius: 15px;
+    overflow: hidden;
+}
+/* Add these new persona classes */
+.persona-david { border-left: 3px solid #ef4444; }
+.persona-lisa { border-left: 3px solid #f59e0b; }
+.persona-michael { border-left: 3px solid #06b6d4; }
+
+/* Speaking indicator animation */
+.participant-item.speaking {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+    border-left: 3px solid var(--primary);
+    animation: pulse 1s ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Enhanced participant sidebar */
+.participants-sidebar {
+    width: 220px;
+    background: #f9fafb;
+    padding: 1.5rem 1rem;
+    border-right: 1px solid #e5e7eb;
+    overflow-y: auto;
+}
+
+.participants-sidebar h6 {
+    color: #6b7280;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.participants-sidebar h6::before {
+    content: "👥";
+    font-size: 1rem;
+}
+
+.participant-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-left: 3px solid transparent;
+}
+
+.participant-item:hover {
+    background: #f3f4f6;
+}
+
+.participant-item.active {
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.participant-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.participant-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.participant-name {
+    color: #1f2937;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.125rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.participant-role {
+    color: #6b7280;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    flex-shrink: 0;
+}
+
+/* Message bubbles for new agents */
+.message-ai.persona-david .avatar { background: #ef4444; }
+.message-ai.persona-lisa .avatar { background: #f59e0b; }
+.message-ai.persona-michael .avatar { background: #06b6d4; }
+
+/* Topic cards update */
+.topic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+/* Improved chat container */
+.multiagent-wrapper {
+    display: flex;
+    height: 650px;
+    border: 1px solid #e5e7eb;
+    border-radius: 15px;
+    overflow: hidden;
+    background: white;
+}
+
+/* Agent counter badge */
+.agent-counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.agent-counter i {
+    font-size: 1rem;
+}
+
+.agent-selector-card {
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: white;
+}
+
+.agent-selector-card:hover {
+    border-color: #4f46e5;
+    background: #f9fafb;
+    transform: translateY(-2px);
+}
+
+.agent-selector-card.selected {
+    border-color: #4f46e5;
+    background: #eff6ff;
+}
+
+.agent-selector-card.selected .fa-check-circle {
+    display: block !important;
+}
+
+.agent-selector-card:not(.selected) .fa-check-circle {
+    display: none !important;
+}
+
+.agent-selector-card h6 {
+    color: #1f2937;
+    font-size: 1rem;
+}
+
+.agent-selector-card {
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: white;
+    position: relative;
+}
+
+.agent-selector-card:hover {
+    border-color: #4f46e5;
+    background: #f9fafb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.agent-selector-card.selected {
+    border-color: #4f46e5;
+    background: #eff6ff;
+    box-shadow: 0 2px 6px rgba(79, 70, 229, 0.2);
+}
+
+.agent-selector-card.selected .fa-check-circle {
+    display: block !important;
+}
+
+.agent-selector-card:not(.selected) .fa-check-circle {
+    display: none !important;
+}
+
+.agent-selector-card h6 {
+    color: #1f2937;
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+
+.modal-header h5 {
+    margin-bottom: 0;
+}
+
+.modal-header small {
+    opacity: 0.9;
+}
+
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="mb-0"><i class="fas fa-brain"></i> HealTalk</h1>
+                    <p class="mb-0">Your Recovery Companion</p>
+                </div>
+                <div class="text-end">
+                    <div class="streak-badge" id="streakBadge">7</div>
+                    <small>Day Streak</small>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Navigation -->
+        <!-- Navigation -->
+<div class="p-3 border-bottom">
+    <ul class="nav nav-pills" id="mainNav">
+        <li class="nav-item">
+            <a class="nav-link active" href="#dashboard" data-bs-toggle="pill">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#journal" data-bs-toggle="pill">
+                <i class="fas fa-book"></i> Journal
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#coach" data-bs-toggle="pill">
+                <i class="fas fa-comments"></i> AI Coach
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#multiagent" data-bs-toggle="pill">
+                <i class="fas fa-users"></i> Multi-AI Roundtable
+            </a>
+        </li>
+    </ul>
+</div>
+
+        <!-- Content -->
+        <div class="tab-content p-4">
+            <!-- Dashboard Tab -->
+            <div class="tab-pane fade show active" id="dashboard">
+                <div class="row g-4">
+                    <!-- Stats Cards -->
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted mb-1">Current Streak</p>
+                                    <h2 class="mb-0" id="currentStreak">7 days</h2>
+                                </div>
+                                <i class="fas fa-fire fa-3x text-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted mb-1">Longest Streak</p>
+                                    <h2 class="mb-0" id="longestStreak">14 days</h2>
+                                </div>
+                                <i class="fas fa-trophy fa-3x text-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted mb-1">Total Clean Days</p>
+                                    <h2 class="mb-0" id="totalDays">45 days</h2>
+                                </div>
+                                <i class="fas fa-calendar-check fa-3x text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Brain State -->
+                    <div class="col-12">
+                        <div class="brain-state state-focused" id="brainState">
+                            <i class="fas fa-brain fa-2x mb-3"></i>
+                            <div>Current State: <span id="stateText">FOCUSED</span></div>
+                            <div class="fs-6 mt-2">Confidence: <span id="confidence">85%</span></div>
+                        </div>
+                    </div>
+
+                    <!-- EEG Monitor -->
+                    <div class="col-12">
+                        <div class="stat-card">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5><i class="fas fa-wave-square"></i> Real-time EEG Monitor</h5>
+                                <button class="btn btn-primary" id="toggleStream">
+                                    <i class="fas fa-play"></i> Start Stream
+                                </button>
+                            </div>
+                            <canvas id="eegChart" height="100"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="col-md-6">
+                        <button class="emergency-btn" onclick="showEmergency()">
+                            <i class="fas fa-exclamation-circle"></i> EMERGENCY SUPPORT
+                        </button>
+                    </div>
+
+                    <div class="col-md-6">
+                        <button class="btn btn-primary w-100 p-4" onclick="activateTab('coach')" style="border-radius: 15px; font-size: 1.2rem;">
+                            <i class="fas fa-comments"></i> Talk to AI Coach
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Journal Tab -->
+            <div class="tab-pane fade" id="journal">
+                <h3 class="mb-4"><i class="fas fa-book"></i> Daily Journal</h3>
+
+                <div class="stat-card mb-4">
+                    <h5>Today's Entry</h5>
+                    <form id="journalForm">
+                        <div class="mb-3">
+                            <label class="form-label">How are you feeling?</label>
+                            <select class="form-select" name="mood">
+                                <option>Great</option>
+                                <option>Good</option>
+                                <option selected>Neutral</option>
+                                <option>Struggling</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Any triggers today?</label>
+                            <input type="text" class="form-control" name="triggers" placeholder="E.g., stress, boredom, social media">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Reflection</label>
+                            <textarea class="form-control" name="note" rows="4" placeholder="What strategies helped you today? What did you learn?"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Entry
+                        </button>
+                    </form>
+                </div>
+
+                <div class="stat-card">
+                    <h5>Previous Entries</h5>
+                    <div id="journalEntries"></div>
+                </div>
+            </div>
+
+            <!-- AI Coach Tab -->
+            <div class="tab-pane fade" id="coach">
+                <h3 class="mb-4"><i class="fas fa-comments"></i> AI Support Coach</h3>
+
+                <div class="chat-container" id="chatContainer">
+                    <div class="message message-coach">
+                        Welcome to HealTalk. I'm here to support you 24/7 on your recovery journey.
+                    </div>
+                </div>
+
+                <div class="input-group mt-3">
+                    <input type="text" class="form-control" id="chatInput" placeholder="Type your message...">
+                    <button class="btn btn-primary" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i> Send
+                    </button>
+                </div>
+            </div>
+
+                    <!-- Multi-AI Roundtable Tab -->
+
+             Multi-AI Roundtable Tab
+<div class="tab-pane fade" id="multiagent">
+    <div id="topicSelectionView">
+        <div class="text-center mb-4">
+            <div class="agent-counter">
+                <i class="fas fa-users"></i>
+                <span>6 AI Experts Available</span>
+            </div>
+            <h3>Choose a Discussion Topic</h3>
+            <p class="text-muted">6 specialized therapists will debate the best approaches</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Anxiety Topic -->
+            <div class="col-md-6 col-lg-4">
+                <div class="topic-card" onclick="showAgentSelector('anxiety', 'Treating Anxiety', 'CBT vs medication vs holistic vs trauma approaches', '8 min', 'Clinical')">
+                    <div class="topic-icon">😰</div>
+                    <h5>Treating Anxiety</h5>
+                    <p class="topic-description">6 perspectives on anxiety-triggered addiction</p>
+                    <div class="topic-meta">
+                        <span class="badge bg-light text-dark">8 min</span>
+                        <span class="badge bg-light text-dark">Clinical</span>
+                        <span class="badge bg-primary text-white">Choose Experts</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Digital Therapy Topic -->
+            <div class="col-md-6 col-lg-4">
+                <div class="topic-card" onclick="showAgentSelector('digital_therapy', 'Digital vs In-Person', 'Online therapy effectiveness debate', '9 min', 'Technology')">
+                    <div class="topic-icon">💻</div>
+                    <h5>Digital vs In-Person</h5>
+                    <p class="topic-description">App-based vs traditional therapy approaches</p>
+                    <div class="topic-meta">
+                        <span class="badge bg-light text-dark">9 min</span>
+                        <span class="badge bg-light text-dark">Technology</span>
+                        <span class="badge bg-primary text-white">Choose Experts</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Work-Life Balance Topic -->
+            <div class="col-md-6 col-lg-4">
+                <div class="topic-card" onclick="showAgentSelector('work_life', 'Work-Life Balance', 'Managing work stress triggers', '8 min', 'Lifestyle')">
+                    <div class="topic-icon">⚖️</div>
+                    <h5>Work-Life Balance</h5>
+                    <p class="topic-description">Preventing work-stress relapses</p>
+                    <div class="topic-meta">
+                        <span class="badge bg-light text-dark">8 min</span>
+                        <span class="badge bg-light text-dark">Lifestyle</span>
+                        <span class="badge bg-primary text-white">Choose Experts</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Depression Topic -->
+            <div class="col-md-6 col-lg-4">
+                <div class="topic-card" onclick="showAgentSelector('depression', 'Depression Treatment', 'Depression-addiction connection', '10 min', 'Clinical')">
+                    <div class="topic-icon">💬</div>
+                    <h5>Depression & Addiction</h5>
+                    <p class="topic-description">Understanding comorbidity and treatment</p>
+                    <div class="topic-meta">
+                        <span class="badge bg-light text-dark">10 min</span>
+                        <span class="badge bg-light text-dark">Clinical</span>
+                        <span class="badge bg-primary text-white">Choose Experts</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teen Intervention Topic -->
+            <div class="col-md-6 col-lg-4">
+                <div class="topic-card" onclick="showAgentSelector('child_psychology', 'Teen Intervention', 'Early intervention strategies', '8 min', 'Pediatric')">
+                    <div class="topic-icon">👶</div>
+                    <h5>Teen Early Intervention</h5>
+                    <p class="topic-description">Age-appropriate approaches for adolescents</p>
+                    <div class="topic-meta">
+                        <span class="badge bg-light text-dark">8 min</span>
+                        <span class="badge bg-light text-dark">Pediatric</span>
+                        <span class="badge bg-primary text-white">Choose Experts</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sleep & Recovery Topic -->
+            <div class="col-md-6 col-lg-4">
+                <div class="topic-card" onclick="showAgentSelector('sleep', 'Sleep & Recovery', 'Sleep disturbances and relapses', '7 min', 'Sleep')">
+                    <div class="topic-icon">😴</div>
+                    <h5>Sleep & Recovery</h5>
+                    <p class="topic-description">Addressing insomnia-triggered urges</p>
+                    <div class="topic-meta">
+                        <span class="badge bg-light text-dark">7 min</span>
+                        <span class="badge bg-light text-dark">Sleep</span>
+                        <span class="badge bg-primary text-white">Choose Experts</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Self-Esteem Topic -->
+            <div class="col-md-6 col-lg-4">
+                <div class="topic-card" onclick="showAgentSelector('self_esteem', 'Self-Esteem Recovery', 'Building confidence in recovery', '8 min', 'Psychology')">
+                    <div class="topic-icon">💪</div>
+                    <h5>Self-Esteem & Recovery</h5>
+                    <p class="topic-description">Addressing low self-worth as a trigger</p>
+                    <div class="topic-meta">
+                        <span class="badge bg-light text-dark">8 min</span>
+                        <span class="badge bg-light text-dark">Psychology</span>
+                        <span class="badge bg-primary text-white">Choose Experts</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Relapse Prevention Topic -->
+            <div class="col-md-6 col-lg-4">
+                <div class="topic-card" onclick="showAgentSelector('relapse_prevention', 'Relapse Prevention', 'Long-term recovery strategies', '9 min', 'Recovery')">
+                    <div class="topic-icon">🛡️</div>
+                    <h5>Relapse Prevention</h5>
+                    <p class="topic-description">Sustainable recovery maintenance strategies</p>
+                    <div class="topic-meta">
+                        <span class="badge bg-light text-dark">9 min</span>
+                        <span class="badge bg-light text-dark">Recovery</span>
+                        <span class="badge bg-primary text-white">Choose Experts</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button class="btn btn-outline-primary btn-lg" onclick="selectRandomTopic()">
+                <i class="fas fa-random"></i> Random Topic
+            </button>
+        </div>
+    </div>
+
+    <!-- Chat View (hidden initially) -->
+    <div id="chatView" style="display: none;">
+        <div class="multiagent-wrapper">
+            <!-- Participants Sidebar -->
+            <!-- Participants Sidebar -->
+<div class="participants-sidebar" id="participantsSidebar">
+    <h6>Participants</h6>
+<!--                <div class="participant-item active">-->
+<!--                    <div class="participant-avatar" style="background: #3b82f6;">👩‍⚕️</div>-->
+<!--                    <div class="participant-info">-->
+<!--                        <div class="participant-name">Dr. Sarah</div>-->
+<!--                        <div class="participant-role">CBT Expert</div>-->
+<!--                    </div>-->
+<!--                    <div class="status-dot"></div>-->
+<!--                </div>-->
+<!--                <div class="participant-item active">-->
+<!--                    <div class="participant-avatar" style="background: #10b981;">🧘‍♂️</div>-->
+<!--                    <div class="participant-info">-->
+<!--                        <div class="participant-name">Dr. James</div>-->
+<!--                        <div class="participant-role">Holistic</div>-->
+<!--                    </div>-->
+<!--                    <div class="status-dot"></div>-->
+<!--                </div>-->
+<!--                <div class="participant-item active">-->
+<!--                    <div class="participant-avatar" style="background: #8b5cf6;">👩‍🔬</div>-->
+<!--                    <div class="participant-info">-->
+<!--                        <div class="participant-name">Dr. Maria</div>-->
+<!--                        <div class="participant-role">Psychologist</div>-->
+<!--                    </div>-->
+<!--                    <div class="status-dot"></div>-->
+<!--                </div>-->
+<!--                <div class="participant-item">-->
+<!--                    <div class="participant-avatar" style="background: #4f46e5;">👤</div>-->
+<!--                    <div class="participant-info">-->
+<!--                        <div class="participant-name">You</div>-->
+<!--                        <div class="participant-role">Participant</div>-->
+<!--                    </div>-->
+<!--                    <div class="status-dot"></div>-->
+<!--                </div>-->
+            </div>
+
+            <!-- Main Chat Area -->
+            <div class="chat-main">
+                <div class="topic-header">
+                    <div>
+                        <div class="topic-label">Current Topic:</div>
+                        <div class="topic-title" id="currentTopicDisplay">Discussion Topic</div>
+                    </div>
+                    <div class="control-group">
+                        <button class="btn btn-sm btn-outline-primary" id="pauseBtn" onclick="toggleMultiAgentPause()">
+                            <i class="fas fa-pause"></i> Pause
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="backToTopics()">
+                            <i class="fas fa-arrow-left"></i> Change Topic
+                        </button>
+                        <button class="btn btn-sm btn-outline-success" onclick="showExportModal()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+
+                <div class="chat-container" id="multiagentContainer"></div>
+
+                <div class="chat-input-wrapper">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="multiagentInput" placeholder="Type your message... (Use @ to mention a therapist)">
+                        <button class="btn btn-primary" onclick="sendMultiAgentMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Emergency Modal -->
+    <div class="modal fade" id="emergencyModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; overflow: hidden;">
+                <div class="modal-body text-center p-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h2 class="mb-4">You've Got This</h2>
+                    <div class="breathing-circle"></div>
+                    <h4 id="breathingPhase" class="mb-4">INHALE</h4>
+                    <p class="fs-5">"This moment will pass. You're stronger than any urge."</p>
+                    <p class="mt-4">Your <span id="modalStreak">7</span>-day streak shows your commitment to healing.</p>
+                    <div class="d-grid gap-2 mt-4">
+                        <button class="btn btn-light btn-lg" onclick="activateTab('coach'); $('#emergencyModal').modal('hide')">
+                            <i class="fas fa-comments"></i> Talk to AI Coach
+                        </button>
+                        <button class="btn btn-outline-light btn-lg" onclick="activateTab('journal'); $('#emergencyModal').modal('hide')">
+                            <i class="fas fa-book"></i> Write in Journal
+                        </button>
+                        <button class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Export Modal -->
+<div class="export-modal" id="exportModal">
+    <div class="export-modal-content">
+        <div class="export-modal-header">
+            <h3>Export Conversation</h3>
+            <p>Download the complete transcript</p>
+        </div>
+
+        <div class="export-format-option" onclick="selectExportFormat('txt')">
+            <div class="export-format-icon icon-txt">TXT</div>
+            <div class="export-format-info">
+                <h5>Plain Text</h5>
+                <p>Simple text format for easy reading</p>
+            </div>
+            <div class="export-arrow">→</div>
+        </div>
+
+        <div class="export-format-option" onclick="selectExportFormat('json')">
+            <div class="export-format-icon icon-json">JSON</div>
+            <div class="export-format-info">
+                <h5>JSON Format</h5>
+                <p>Structured data with metadata</p>
+            </div>
+            <div class="export-arrow">→</div>
+        </div>
+
+        <div class="export-format-option" onclick="selectExportFormat('pdf')">
+            <div class="export-format-icon icon-pdf">PDF</div>
+            <div class="export-format-info">
+                <h5>PDF Document</h5>
+                <p>Formatted document for sharing</p>
+            </div>
+            <div class="export-arrow">→</div>
+        </div>
+
+        <div class="export-options-section">
+            <h6>Include Options</h6>
+            <div class="export-checkbox">
+                <input type="checkbox" id="includeTimestamps" checked>
+                <label for="includeTimestamps">Include timestamps</label>
+            </div>
+            <div class="export-checkbox">
+                <input type="checkbox" id="includeUserMessages" checked>
+                <label for="includeUserMessages">Include user messages</label>
+            </div>
+            <div class="export-checkbox">
+                <input type="checkbox" id="includeTypingIndicators">
+                <label for="includeTypingIndicators">Include typing indicators</label>
+            </div>
+        </div>
+
+        <div class="export-modal-actions">
+            <button class="export-now-btn" onclick="executeExport()">Export Now</button>
+            <button class="export-cancel-btn" onclick="closeExportModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+            <!-- Agent Selection Modal -->
+<div class="modal fade" id="agentSelectorModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white;">
+                <div>
+                    <h5 class="modal-title" id="agentModalTitle">Select Your AI Experts</h5>
+                    <small>Choose 3-6 therapists for this discussion</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-center text-muted mb-4" id="agentModalDescription">
+                    Select which AI therapists you'd like to participate in this discussion
+                </p>
+                <div class="row g-3" id="agentSelectionGrid">
+                    <!-- Agent cards populated by JavaScript -->
+                </div>
+                <div class="text-center mt-4">
+                    <span id="selectionCount" class="badge bg-secondary">0 experts selected</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmAgentsBtn" onclick="confirmAgentSelection()" disabled>
+                    <i class="fas fa-check"></i> Start Discussion
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+        <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="/static/app.js"></script>
+        <script>
+// Make functions globally accessible for onclick handlers
+window.showAgentSelector = showAgentSelector;
+window.toggleAgentSelection = toggleAgentSelection;
+window.confirmAgentSelection = confirmAgentSelection;
+window.selectRandomTopic = selectRandomTopic;
+window.backToTopics = backToTopics;
+window.showExportModal = showExportModal;
+window.closeExportModal = closeExportModal;
+window.selectExportFormat = selectExportFormat;
+window.executeExport = executeExport;
+window.sendMultiAgentMessage = sendMultiAgentMessage;
+window.toggleMultiAgentPause = toggleMultiAgentPause;
+window.showEmergency = showEmergency;
+window.sendMessage = sendMessage;
+window.activateTab = activateTab;
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroShield - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+
+        body {
+            background: #f3f4f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 2rem 0;
+            position: fixed;
+            width: 250px;
+        }
+
+        .sidebar-logo {
+            padding: 0 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-logo h4 {
+            color: white;
+            margin: 0;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-menu li {
+            margin: 0.5rem 0;
+        }
+
+        .sidebar-menu a {
+            color: #9ca3af;
+            text-decoration: none;
+            padding: 0.75rem 2rem;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: rgba(79, 70, 229, 0.2);
+            color: white;
+            border-left: 4px solid var(--primary);
+        }
+
+        .sidebar-menu i {
+            margin-right: 0.75rem;
+            width: 20px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+            height: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .stat-card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+
+        .stat-card-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .badge-custom {
+            padding: 0.35rem 0.75rem;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .refresh-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+        }
+
+        .alert-banner {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid var(--warning);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                min-height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <h4><i class="fas fa-brain"></i> NeuroShield</h4>
+            <small class="text-muted">Admin Dashboard</small>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li><a href="#overview" class="active"><i class="fas fa-chart-line"></i> Overview</a></li>
+            <li><a href="#users"><i class="fas fa-users"></i> Users</a></li>
+            <li><a href="#sessions"><i class="fas fa-wave-square"></i> EEG Sessions</a></li>
+            <li><a href="#analytics"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+            <li><a href="#emergency"><i class="fas fa-exclamation-triangle"></i> Emergency Events</a></li>
+            <li><a href="#research"><i class="fas fa-flask"></i> Research Data</a></li>
+            <li><a href="#settings"><i class="fas fa-cog"></i> Settings</a></li>
+            <li><a href="/"><i class="fas fa-arrow-left"></i> Back to App</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h2 class="mb-0">Admin Dashboard</h2>
+                <small class="text-muted">System Overview & Analytics</small>
+            </div>
+            <div>
+                <button class="refresh-btn" onclick="loadAllData()">
+                    <i class="fas fa-sync-alt"></i> Refresh Data
+                </button>
+            </div>
+        </div>
+
+        <!-- Alert Banner -->
+        <div class="alert-banner">
+            <i class="fas fa-info-circle"></i>
+            <strong>Privacy Notice:</strong> All data shown is anonymized. User identities are protected by anonymous IDs.
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: rgba(79, 70, 229, 0.1); color: var(--primary);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-card-value" id="totalUsers">0</div>
+                    <div class="stat-card-label">Total Users</div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">
+                        <i class="fas fa-wave-square"></i>
+                    </div>
+                    <div class="stat-card-value" id="activeSessions">0</div>
+                    <div class="stat-card-label">Active Sessions</div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="stat-card-value" id="totalCleanDays">0</div>
+                    <div class="stat-card-label">Total Clean Days</div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="stat-card-value" id="emergencyCount">0</div>
+                    <div class="stat-card-label">Emergency Events (7d)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-8">
+                <div class="chart-card">
+                    <h5 class="mb-4"><i class="fas fa-chart-area"></i> Brain States Over Time</h5>
+                    <canvas id="statesChart" height="80"></canvas>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="chart-card">
+                    <h5 class="mb-4"><i class="fas fa-chart-pie"></i> State Distribution</h5>
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h5 class="mb-4"><i class="fas fa-chart-bar"></i> Streak Statistics</h5>
+                    <canvas id="streakChart" height="100"></canvas>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h5 class="mb-4"><i class="fas fa-calendar-alt"></i> Daily Active Users</h5>
+                    <canvas id="activeUsersChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Sessions Table -->
+        <div class="table-card">
+            <h5 class="mb-4"><i class="fas fa-history"></i> Recent EEG Sessions</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Anonymous ID</th>
+                            <th>Session Start</th>
+                            <th>Duration</th>
+                            <th>Avg Risk Score</th>
+                            <th>States</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sessionsTable">
+                        <tr>
+                            <td colspan="6" class="text-center">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- User Statistics -->
+        <div class="row g-4 mt-4">
+            <div class="col-md-6">
+                <div class="table-card">
+                    <h5 class="mb-4"><i class="fas fa-trophy"></i> Top Streaks</h5>
+                    <div id="topStreaks"></div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="table-card">
+                    <h5 class="mb-4"><i class="fas fa-exclamation-triangle"></i> Emergency Events Log</h5>
+                    <div id="emergencyLog"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Research Insights -->
+        <div class="table-card mt-4">
+            <h5 class="mb-4"><i class="fas fa-flask"></i> Research Insights</h5>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="text-center p-3" style="background: #f9fafb; border-radius: 10px;">
+                        <div class="h3 mb-2" id="avgStreakStat">0</div>
+                        <small class="text-muted">Average Current Streak</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center p-3" style="background: #f9fafb; border-radius: 10px;">
+                        <div class="h3 mb-2" id="successRateStat">0%</div>
+                        <small class="text-muted">User Success Rate (7+ days)</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center p-3" style="background: #f9fafb; border-radius: 10px;">
+                        <div class="h3 mb-2" id="interventionsStat">0</div>
+                        <small class="text-muted">Total Interventions</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let statesChart, distributionChart, streakChart, activeUsersChart;
+
+        // Load all data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAllData();
+            // Auto-refresh every 30 seconds
+            setInterval(loadAllData, 30000);
+        });
+
+        async function loadAllData() {
+            try {
+                const response = await fetch('/admin');
+                const data = await response.json();
+
+                updateStatCards(data);
+                updateCharts(data);
+                updateTables(data);
+                updateInsights(data);
+            } catch (error) {
+                console.error('Error loading admin data:', error);
+            }
+        }
+
+        function updateStatCards(data) {
+            document.getElementById('totalUsers').textContent = data.total_users || 0;
+            document.getElementById('activeSessions').textContent = data.active_sessions || 0;
+            document.getElementById('totalCleanDays').textContent = data.total_clean_days || 0;
+            document.getElementById('emergencyCount').textContent = data.emergency_events_week || 0;
+        }
+
+        function updateCharts(data) {
+            // States Over Time Chart
+            if (statesChart) statesChart.destroy();
+            const ctx1 = document.getElementById('statesChart').getContext('2d');
+            statesChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [
+                        {
+                            label: 'Focused',
+                            data: [45, 52, 48, 55, 58, 51, 49],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Triggered',
+                            data: [12, 15, 10, 8, 11, 13, 9],
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Distribution Pie Chart
+            if (distributionChart) distributionChart.destroy();
+            const ctx2 = document.getElementById('distributionChart').getContext('2d');
+
+            const stateDistribution = data.state_distribution || {};
+            const focusedCount = stateDistribution.focused || 0;
+            const triggeredCount = stateDistribution.triggered || 0;
+            const relaxedCount = stateDistribution.relaxed || 0;
+
+            distributionChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Focused', 'Triggered', 'Relaxed'],
+                    datasets: [{
+                        data: [focusedCount, triggeredCount, relaxedCount],
+                        backgroundColor: ['#10b981', '#ef4444', '#3b82f6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Streak Statistics Chart
+            if (streakChart) streakChart.destroy();
+            const ctx3 = document.getElementById('streakChart').getContext('2d');
+            streakChart = new Chart(ctx3, {
+                type: 'bar',
+                data: {
+                    labels: ['0-3 days', '4-7 days', '8-14 days', '15-30 days', '30+ days'],
+                    datasets: [{
+                        label: 'Users',
+                        data: [5, 8, 12, 7, 3],
+                        backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#8b5cf6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Active Users Chart
+            if (activeUsersChart) activeUsersChart.destroy();
+            const ctx4 = document.getElementById('activeUsersChart').getContext('2d');
+            activeUsersChart = new Chart(ctx4, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Daily Active Users',
+                        data: [18, 22, 19, 25, 28, 21, 20],
+                        backgroundColor: '#4f46e5'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        function updateTables(data) {
+            // Recent Sessions Table
+            const sessionsTable = document.getElementById('sessionsTable');
+
+            // Sample data (in production, this would come from API)
+            const sessions = [
+                {
+                    anonymousId: 'anon_abc123',
+                    start: '2025-10-03 14:30',
+                    duration: '25 min',
+                    riskScore: 0.32,
+                    focused: 18,
+                    triggered: 3,
+                    status: 'completed'
+                },
+                {
+                    anonymousId: 'anon_def456',
+                    start: '2025-10-03 13:15',
+                    duration: '30 min',
+                    riskScore: 0.15,
+                    focused: 22,
+                    triggered: 1,
+                    status: 'completed'
+                },
+                {
+                    anonymousId: 'anon_ghi789',
+                    start: '2025-10-03 12:00',
+                    duration: '18 min',
+                    riskScore: 0.58,
+                    focused: 10,
+                    triggered: 6,
+                    status: 'completed'
+                }
+            ];
+
+            sessionsTable.innerHTML = sessions.map(s => `
+                <tr>
+                    <td><code>${s.anonymousId}</code></td>
+                    <td><small>${s.start}</small></td>
+                    <td>${s.duration}</td>
+                    <td>
+                        <span class="badge-custom" style="background: ${s.riskScore > 0.5 ? '#fee2e2' : '#dcfce7'}; color: ${s.riskScore > 0.5 ? '#dc2626' : '#16a34a'}">
+                            ${(s.riskScore * 100).toFixed(0)}%
+                        </span>
+                    </td>
+                    <td>
+                        <small>
+                            <span class="text-success">✓ ${s.focused}</span> /
+                            <span class="text-danger">⚠ ${s.triggered}</span>
+                        </small>
+                    </td>
+                    <td>
+                        <span class="badge-custom" style="background: #dcfce7; color: #16a34a">
+                            ${s.status}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Top Streaks
+            const topStreaks = document.getElementById('topStreaks');
+            const streakData = [
+                { id: 'anon_user001', streak: 45, longest: 45 },
+                { id: 'anon_user002', streak: 32, longest: 38 },
+                { id: 'anon_user003', streak: 28, longest: 30 },
+                { id: 'anon_user004', streak: 21, longest: 25 },
+                { id: 'anon_user005', streak: 14, longest: 20 }
+            ];
+
+            topStreaks.innerHTML = streakData.map((s, i) => `
+                <div class="d-flex justify-content-between align-items-center p-3 mb-2" style="background: #f9fafb; border-radius: 10px;">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="badge-custom" style="background: ${i === 0 ? '#fef3c7' : '#e5e7eb'}; color: ${i === 0 ? '#d97706' : '#6b7280'}; font-size: 1.2rem;">
+                            ${i + 1}
+                        </div>
+                        <div>
+                            <code class="small">${s.id}</code>
+                            <div class="small text-muted">Longest: ${s.longest} days</div>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <div class="h5 mb-0">${s.streak}</div>
+                        <small class="text-muted">days</small>
+                    </div>
+                </div>
+            `).join('');
+
+            // Emergency Log
+            const emergencyLog = document.getElementById('emergencyLog');
+            const emergencyData = [
+                { time: '2 hours ago', user: 'anon_user003', action: 'Breathing exercise' },
+                { time: '5 hours ago', user: 'anon_user007', action: 'AI coach chat' },
+                { time: '1 day ago', user: 'anon_user002', action: 'Emergency protocol' },
+                { time: '1 day ago', user: 'anon_user005', action: 'Breathing exercise' },
+                { time: '2 days ago', user: 'anon_user001', action: 'Journal writing' }
+            ];
+
+            emergencyLog.innerHTML = emergencyData.map(e => `
+                <div class="d-flex justify-content-between align-items-start p-3 mb-2" style="background: #fef2f2; border-left: 3px solid #ef4444; border-radius: 10px;">
+                    <div>
+                        <code class="small">${e.user}</code>
+                        <div class="small text-muted mt-1">${e.action}</div>
+                    </div>
+                    <small class="text-muted">${e.time}</small>
+                </div>
+            `).join('');
+        }
+
+        function updateInsights(data) {
+            const avgStreak = data.avg_current_streak || 0;
+            document.getElementById('avgStreakStat').textContent = avgStreak.toFixed(1) + ' days';
+
+            // Calculate success rate (users with 7+ day streak)
+            const successRate = Math.random() * 30 + 40; // Demo calculation
+            document.getElementById('successRateStat').textContent = successRate.toFixed(0) + '%';
+
+            const totalInterventions = data.emergency_events_week || 0;
+            document.getElementById('interventionsStat').textContent = totalInterventions;
+        }
+
+        // Sidebar navigation
+        document.querySelectorAll('.sidebar-menu a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.getAttribute('href').startsWith('#')) {
+                    e.preventDefault();
+                    document.querySelectorAll('.sidebar-menu a').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
