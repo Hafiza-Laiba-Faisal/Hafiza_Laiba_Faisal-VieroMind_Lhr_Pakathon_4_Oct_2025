@@ -115,12 +115,7 @@ All data is anonymized, encrypted, and used responsibly.
 
 ---
 
-## 🏅 Achievement
 
-> 🥇 **Winner — 1st Position, VieroMind Lahore Pakathon (October 2025)**
-> Category: *AI for Mental Health and Wellness*
-
----
 
 **Developed by:** Hafiza Laiba Faisal
 **Project:** HealTalk
